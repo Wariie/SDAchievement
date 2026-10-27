@@ -1,0 +1,9 @@
+# Store text files with LF in the repo and check them out with LF (Decky runs on Linux)
+* text=auto eol=lf
+
+# Binary assets
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.gif binary
+*.ico binary

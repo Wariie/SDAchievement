@@ -20,7 +20,7 @@ from cachetools import TTLCache
 logger = decky.logger
 
 # Import constants
-from constants import CACHE_TTL, NETWORK, CONCURRENCY, MEMORY_LIMITS, TIME_CONSTANTS
+from constants import CACHE_TTL, NETWORK, CONCURRENCY, MEMORY_LIMITS, DEFAULTS
 
 def create_error_response(message: str) -> Dict[str, str]:
     """Create standardized error response"""
@@ -49,10 +49,12 @@ class SteamAPI:
             ttl=CACHE_TTL["SCHEMA_TTL"]
         )
         
-        # Create SSL context that doesn't verify certificates
-        self.ssl_context = ssl.create_default_context()
-        self.ssl_context.check_hostname = False
-        self.ssl_context.verify_mode = ssl.CERT_NONE
+        # Verified SSL context; prefer certifi's CA bundle (shipped with Decky) in case the system store is missing
+        try:
+            import certifi
+            self.ssl_context = ssl.create_default_context(cafile=certifi.where())
+        except ImportError:
+            self.ssl_context = ssl.create_default_context()
 
     async def __aenter__(self):
         connector = aiohttp.TCPConnector(ssl=self.ssl_context)
@@ -95,14 +97,18 @@ class SteamAPI:
                     if resp.status == 200:
                         response_data = await resp.json()
                         return response_data
-                    elif resp.status in [403, 429]:  # Rate limited
-                        logger.warning(f"Rate limited (status {resp.status}) for {url}")
+                    elif resp.status == 429:  # Rate limited
+                        logger.warning(f"Rate limited (status 429) for {url}")
+                        return None
+                    elif resp.status == 403:  # Invalid API key or private profile
+                        logger.warning(f"Access denied (status 403) for {url} - check API key and profile privacy")
                         return None
                     elif resp.status == 400:  # Bad request
                         response_text = await resp.text()
                         logger.error(f"Steam API bad request (400) for {url}")
-                        logger.error(f"Request params: {params}")
-                        logger.error(f"Response: {response_text[:500]}")
+                        safe_params = {k: ("***" if k == "key" else v) for k, v in params.items()}
+                        logger.error(f"Request params: {safe_params}")
+                        logger.error(f"Response: {response_text[:DEFAULTS['RESPONSE_TEXT_LIMIT']]}")
                         return None
                     else:
                         logger.error(f"Steam API returned status {resp.status} for {url}")
@@ -161,8 +167,9 @@ class SteamAPI:
                     logger.info(f"Cleared in-memory achievement cache for app {app_id}")
                 
                 # Also clear schema cache for the app
-                if app_id in self.schema_cache:
-                    del self.schema_cache[app_id]
+                schema_key = f"schema_{app_id}"
+                if schema_key in self.schema_cache:
+                    del self.schema_cache[schema_key]
                     logger.info(f"Cleared in-memory schema cache for app {app_id}")
             else:
                 # Clear all caches
@@ -346,7 +353,7 @@ class SteamAPI:
             return create_error_response("Missing API key or Steam ID")
 
         # Clean up expired cache entries periodically (every 10th call)
-        if len(self.achievement_cache) % 10 == 0:
+        if len(self.achievement_cache) % DEFAULTS["CACHE_CLEANUP_FREQUENCY"] == 0:
             self._cleanup_expired_memory_cache()
         
         # Check cache first (TTL handled automatically by LRU cache)

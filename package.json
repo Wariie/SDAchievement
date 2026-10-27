@@ -1,7 +1,7 @@
 {
   "name": "decky-achievement",
-  "version": "0.3.0",
-  "description": "A template to quickly create decky plugins from scratch, based on TypeScript and webpack",
+  "version": "0.4.0",
+  "description": "Decky plugin to track Steam game progress and achievements",
   "type": "module",
   "scripts": {
     "build": "rollup -c",

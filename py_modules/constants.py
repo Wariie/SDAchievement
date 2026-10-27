@@ -16,7 +16,6 @@ DELAYS = {
 
 # Concurrency limits - aggressive optimization
 CONCURRENCY = {
-    "MAX_ACHIEVEMENT_REQUESTS": 20,  # Push Steam API harder
     "MAX_GAMES": 20,             # Memory usage is only 80MB, go higher
     "MAX_API_REQUESTS": 6,       # More aggressive API rate limit
 }
@@ -43,7 +42,6 @@ CACHE_TTL = {
     "ACHIEVEMENT_TTL": TIME_CONSTANTS["FIVE_MINUTES"],      # 5 minutes - in-memory achievement data
     "SCHEMA_TTL": TIME_CONSTANTS["ONE_HOUR"],               # 1 hour - schema data changes rarely  
     "APP_DETAILS_TTL": TIME_CONSTANTS["ONE_DAY"],           # 24 hours - app details from store
-    "RECENT_ACHIEVEMENTS_TTL": TIME_CONSTANTS["TWO_MINUTES"], # 2 minutes - recent achievements feed
     "PROGRESS_FILE_TTL": TIME_CONSTANTS["ONE_DAY"],         # 24 hours - overall progress cache file
     "CACHE_FILE_MAX_AGE": TIME_CONSTANTS["ONE_WEEK"],       # 7 days - max age before cleanup
 }
@@ -51,7 +49,6 @@ CACHE_TTL = {
 # Timeouts and fallbacks
 TIMEOUTS = {
     "PROGRESS_CALCULATION": TIME_CONSTANTS["FIVE_MINUTES"],       # 5 minutes for large libraries
-    "RECENT_GAME_FALLBACK": TIME_CONSTANTS["ONE_HOUR"],     # 1 hour fallback
 }
 
 # Memory management and cache sizes - consistent naming with MAX_ prefix

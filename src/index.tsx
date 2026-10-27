@@ -18,6 +18,7 @@ import { useAchievements } from "./hooks/useAchievements";
 
 // Import services
 import { hybridAPI } from "./services/hybridApi";
+import { steamClientAPI } from "./utils/steam_client";
 import { FaTrophy } from "./utils/icons";
 import { logger } from "./utils/logger";
 
@@ -100,23 +101,8 @@ const Content: VFC = () => {
   useEffect(() => {
     const initializePlugin = async () => {
       try {
-        // Load settings first
+        // Load settings first (the tracked game is synced from settings by the effect below)
         await settings.loadPluginSettings();
-
-        // Load tracked game from settings after settings are loaded
-        if (settings.trackedGame) {
-          setTrackedGame(settings.trackedGame);
-
-          // Also load achievements for tracked game
-          try {
-            const result = await hybridAPI.getAchievements(settings.trackedGame.app_id);
-            if (result && !result.error) {
-              setTrackedGameAchievements(result);
-            }
-          } catch (error) {
-            logger.error("Failed to load tracked game achievements", error);
-          }
-        }
 
         // Load current game
         const game = await fetchCurrentGame();
@@ -427,6 +413,7 @@ export default definePlugin(() => {
     icon: <FaTrophy />,
     onDismount() {
       // Clean up when plugin is completely unloaded
+      steamClientAPI.dispose();
     },
   };
 });
