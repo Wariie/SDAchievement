@@ -31,8 +31,8 @@ class GameDetectorService:
                     "header_image": game_info.get("header_image", "")
                 }
             
-            # Get the current app ID from Steam (with localconfig fallback)
-            app_result = await self._get_running_app_id_enhanced()
+            # Get the current app ID from Steam
+            app_result = await self._get_running_app_id()
             
             if app_result and not app_result.get("error"):
                 app_id = app_result["app_id"]
@@ -83,22 +83,7 @@ class GameDetectorService:
                 "total_achievements": 0
             }
     
-    async def _get_running_app_id_enhanced(self) -> Dict:
-        """Enhanced version with localconfig.vdf support"""
-        try:
-            # First try the original methods
-            result = await self._get_running_app_id_original()
-            if result and not result.get("error"):
-                return result
-            
-            
-            return {"error": "No running Steam game detected"}
-            
-        except Exception as e:
-            decky.logger.error(f"Failed to get enhanced running app ID: {e}")
-            return {"error": f"Failed to get enhanced running app ID: {str(e)}"}
-    
-    async def _get_running_app_id_original(self) -> Dict:
+    async def _get_running_app_id(self) -> Dict:
         """Get the currently running Steam app ID"""
         try:
             decky.logger.info("Detecting running Steam app...")

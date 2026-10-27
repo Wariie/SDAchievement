@@ -30,9 +30,13 @@ def test_steam_api_key():
     print(f"🔍 Testing API key: {api_key[:8]}...{api_key[-8:]}")
     print()
     
-    # Test 1: Get Steam user info (using a well-known Steam ID)
+    # Test 1: Get Steam user info
+    test_steam_id = input("Enter your SteamID64 (17 digits): ").strip()
+    if not (test_steam_id.isdigit() and len(test_steam_id) == 17):
+        print("❌ Invalid SteamID64! It should be 17 digits (e.g. 7656119XXXXXXXXXX).")
+        return False
+
     print("Test 1: Getting user info...")
-    test_steam_id = "76561198027320514"  # Your Steam ID from the logs
     
     try:
         response = requests.get(

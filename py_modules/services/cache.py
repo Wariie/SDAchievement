@@ -7,7 +7,7 @@ import asyncio
 import decky
 from pathlib import Path
 from typing import Dict, Optional
-from constants import TIME_CONSTANTS
+from constants import TIME_CONSTANTS, CACHE_TTL
 
 
 class FileCacheService:
@@ -26,7 +26,7 @@ class FileCacheService:
                 cache_age = time.time() - cache_file.stat().st_mtime
                 
                 # Use cache if less than 24 hours old
-                if cache_age < TIME_CONSTANTS["ONE_DAY"]:
+                if cache_age < CACHE_TTL["PROGRESS_FILE_TTL"]:
                     # Use thread executor for non-blocking file read
                     loop = asyncio.get_event_loop()
                     

@@ -26,7 +26,6 @@ export interface UseAchievementsReturn {
   fetchRecentlyPlayedGames: () => Promise<void>;
   fetchOverallProgress: (forceRefresh?: boolean) => Promise<void>;
   handleRefresh: (appId?: number) => Promise<void>;
-  clearAchievements: () => void;
 }
 
 export const useAchievements = (): UseAchievementsReturn => {
@@ -184,13 +183,6 @@ export const useAchievements = (): UseAchievementsReturn => {
     }
   }, [fetchAchievements]);
 
-  const clearAchievements = useCallback(() => {
-    setAchievements(null);
-    setRecentAchievements([]);
-    setRecentlyPlayedGames([]);
-    setOverallProgress(null);
-  }, []);
-
   // REMOVED: Auto-refresh for recent achievements to prevent high CPU usage
   // Recent achievements are cached for 2 minutes and will refresh naturally when accessed
 
@@ -208,7 +200,6 @@ export const useAchievements = (): UseAchievementsReturn => {
     fetchRecentAchievements,
     fetchRecentlyPlayedGames,
     fetchOverallProgress,
-    handleRefresh,
-    clearAchievements
+    handleRefresh
   };
 };

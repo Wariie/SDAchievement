@@ -392,30 +392,8 @@ class Plugin:
             }
         
         decky.logger.info("Calling achievement_service.get_achievement_progress...")
-        result = await self.achievement_service.get_achievement_progress(force_refresh)
-        
-        # Aggressive memory cleanup after progress calculation
-        await self._cleanup_memory_after_progress()
-        
-        return result
-    
-    async def _cleanup_memory_after_progress(self):
-        """Simple memory cleanup after overall progress calculation"""
-        try:
-            decky.logger.info("Starting memory cleanup...")
-            
-            # Clear API caches
-            if self.api:
-                self.api.clear_all_caches()
-                decky.logger.info("Cleared API caches")
-            
-            
-            decky.logger.info("Memory cleanup completed")
-            
-        except Exception as e:
-            decky.logger.error(f"Error during memory cleanup: {e}")
-    
-    
+        # The achievement service clears API caches itself after a fresh calculation
+        return await self.achievement_service.get_achievement_progress(force_refresh)
     
     async def _process_single_game(self, game: Dict) -> Optional[Dict]:
         """Process a single game for recently played - simplified version"""
